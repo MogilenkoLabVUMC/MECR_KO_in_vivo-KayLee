@@ -2,29 +2,327 @@
 title: "MECR KO Report"
 author: "Anton_Zhelonkin"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    theme: united
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+```{r}
+##############################
+## Prepairing the environment
+##############################
+
+# Don`t show code in the report set up 
+knitr::opts_chunk$set(echo = FALSE)
+
+# cleaning sessionInfo
+rm(list = ls())
+# Reset graphical parameters
+graphics.off()
+# Reset options to default (optional)
+options(default = TRUE)
+
+#### Library preparation
+# Install if necessary 
+if (!requireNamespace("edgeR", quietly = TRUE)) {
+    if (!requireNamespace("BiocManager", quietly = TRUE)) {
+        install.packages("BiocManager")
+    }
+    BiocManager::install("edgeR")
+}
+
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
+
+if (!requireNamespace("EnhancedVolcano", quietly = TRUE)) {
+  BiocManager::install('EnhancedVolcano')
+}
+
+
+# attaching libraries
+library(ggplot2)
+library(edgeR)
+library(EnhancedVolcano)
+library(limma)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# 1. Data Preparation
+Raw counts data were filtered using `edgeR`s function `filterByExpr` and normalized using standard `TMM` (trimmed mean of M values) method, which accounts for sequencing depth, RNA composition, and gene length, and is the standard recommended method in `edgeR`s vignette. For the exploratory visualisations read counts per million were calculated and log+1 transformed. 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r echo = FALSE, include = FALSE}
+# Reading data
+rawData_trimmed <- read.table('init_data/counts_matrix_trimmed.txt', 
+                      header = TRUE, 
+                      row.names = 1,
+                      stringsAsFactors = FALSE)
 
-```{r cars}
-summary(cars)
+# Assign sample names
+colnames(rawData_trimmed) <- c('KO1', 'KO2', 'KO3', 'WT1', 'WT2', 'WT3')
+
+# Strip daway metadata
+# Check if there's any unwanted metadata row, e.g., 'Geneid', and remove it if necessary
+# If the first row is metadata, you can drop it explicitly:
+if ("Geneid" %in% rownames(rawData_trimmed)) {
+  rawData_trimmed <- rawData_trimmed[-which(rownames(rawData_trimmed) == "Geneid"), ]
+}
+
+# Convert chr to int, preserving rownames - using [] to preserve row attributes
+rawData_trimmed[] <- lapply(rawData_trimmed, as.integer)
+
+# Check for any NA values (indicating conversion issues)
+any_na <- any(is.na(rawData_trimmed))
+# If any NA values are found, investigate
+if (any_na) {
+  print("Warning: Some non-numeric values were converted to NA. Please check your data.")
+} else {
+  print("No NAs introduced during values conversion")
+}
+
+# Create DGEList object
+rawDGE_t <- DGEList(rawData_trimmed)
+
+# Create a grouping factor 
+group <- factor(
+  c(
+    rep("KO", 3),
+    rep("WT", 3)
+  )
+)
+
+# Add grouping to the DGEList object
+rawDGE_t$samples$group <- group
+
+# filtering genes by expression, getting rid of low count genes
+keep <- filterByExpr(rawDGE_t)
+rawDGE_t <- rawDGE_t[keep, , keep.lib.sizes=FALSE] # update lib sizes
+
+# data normalization
+rawDGE_t <- normLibSizes(rawDGE_t, 
+                              method = "TMM")
+
+# Releveling the factor to set WT as the reference level for further modelling
+rawDGE_t$samples$group<- relevel(rawDGE_t$samples$group, ref = "WT")
+
+# calculating logCPM
+logCPM <- cpm(rawDGE_t, log = TRUE, prior.count = 1)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+# 2. Exploratory analysis
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+## PCA
+
+**PCA Data Preparation for Plotting**: : The first two principal components (PC1 and PC2) were extracted from the PCA results and combined with metadata (group/condition) and sample names.
+
+```{r}
+# Calculate PCA
+pca <- prcomp(t(logCPM))
+
+# Prepare PCA for plotting 
+pca_data <- data.frame(
+  PC1 = pca$x[, 1],
+  PC2 = pca$x[, 2],
+  condition = rawDGE_t$samples$group,
+  sample_names = colnames(logCPM)  # Assuming colnames are the sample names
+)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+**Variance Explained by Principal Components**: The proportion of variance explained by each principal component was calculated as a percentage. This provides context for interpreting the PCA plot by quantifying how much of the total variance is captured by PC1 and PC2.
+
+```{r}
+# Percent of PCA variance
+percentVar <- pca$sdev^2 / sum(pca$sdev^2) * 100
+```
+
+**PCA Plot:** The PCA plot visualizes the first two principal components, with points representing individual samples. Points were colored and shaped according to the experimental condition (i.e., group).  
+
+```{r}
+require(ggplot2)
+require(ggalt)
+
+# Custom minimal theme 
+# Custom theme with minimal style and grid lines
+custom_minimal_theme_with_grid <- function() {
+  theme_minimal() +
+    theme(
+      # Customize the axes
+      axis.line = element_line(color = "black"),
+      axis.ticks = element_line(color = "black"),
+      axis.title.x = element_text(size = 12, face = "bold"),
+      axis.title.y = element_text(size = 12, face = "bold"),
+      axis.text.x = element_text(size = 10),
+      axis.text.y = element_text(size = 10),
+      # Major and minor grid lines with transparency
+      panel.grid.major = element_line(color = "grey90", size = 0.5),  # Major grid lines (lighter)
+      panel.grid.minor = element_line(color = "grey95", size = 0.25)   # Minor grid lines (even lighter)
+    )
+}
+
+# Assuming you've already calculated the PCA and created pca_data
+# Add batch information to pca_data
+pca_data$group <- rawDGE_t$samples$group
+
+# PCA plot with sample names
+ggplot(pca_data, aes(x = PC1, y = PC2, color = condition, shape = condition)) +
+  geom_point(size = 3) +
+  geom_text(aes(label = sample_names), vjust = -1, hjust = 1, 
+            size = 3,
+            show.legend = FALSE) +  # Add sample names
+  labs(color = "Condition", shape = "Condition") +
+  xlab(paste0("PC1: ", round(percentVar[1], 1), "% variance")) +
+  ylab(paste0("PC2: ", round(percentVar[2], 1), "% variance")) +
+  ggtitle("Principal Component Analysis on the logCPM") +
+  custom_minimal_theme_with_grid() +
+  xlim(-90,110) +
+  ylim(-80,80) +
+  theme(
+      legend.position = "inside",
+      legend.position.inside = c(0.85,0.9),  # Use legend.position.inside for inside positioning
+      legend.justification = c(0, 1),  # Align legend to top-left inside plot
+      legend.box.background = element_rect(color = "black", linewidth = 0.5),  # Use linewidth instead of size
+      legend.box.margin = margin(2, 2, 2, 2),  # Optional: Adjust margin around legend box
+      plot.title = element_text(hjust=0.2, vjust=0.2, margin = margin(b=10)),
+      plot.margin = margin(20,20,20,20)
+  )
+```
+
+## Scree plot - Proportion of Variance explained by PCA
+
+The major % of variance is explained by the first component. The first PCA has obivously captured the nice delineation between the WT and KO samples. 
+
+```{r}
+# Scree plot data preparation
+scree_data <- data.frame(PC = 1:length(pca$sdev), 
+                         var_explained = percentVar)
+
+ggplot(scree_data, aes(x = PC, y = var_explained)) +
+  geom_bar(stat = "identity") +
+  xlab("Principal Component") +
+  ylab("Proportion of Variance Explained") +
+  ggtitle("Scree Plot")
+```
+
+
+## Samples heatmap
+
+*Sample Correlation Matrix and Heatmap:* A sample correlation matrix was computed using Pearson correlation, quantifying the similarity in gene expression profiles between pairs of samples based on the logCPM values. This matrix reflects how closely samples relate to each other in terms of their overall expression patterns.  A heatmap of the sample correlation matrix was generated using the pheatmap() function. The heatmap displayed correlation values between samples, with annotations for experimental group and temperature shown for each sample.  
+
+```{r echo = FALSE}
+require(pheatmap)
+
+# Sample correlation calculation
+sample_cor <- cor(logCPM, method = "pearson")
+
+# Correlation heatmap
+pheatmap(sample_cor, 
+         main = "Sample Correlation Heatmap",
+         method = "ward.D")
+```
+
+
+
+
+Weights Modelling  
+
+# 3. Statistical Modelling 
+
+
+The design matrix for initial modelling has been set up using the formula: 
+
+> Desing formula
+  ```
+  DEGs ~ group
+  ```
+
+...which basically means. Variable on the left-hand side of a tilde (~) is called the "dependent variable", while the variables on the right-hand side are called the "independent variables" and are joined by plus signs +. Variables joined by * sign, are interactions terms, i.e. we\`re interested in how the intereaction between variables influences the dependant variable. 
+
+*Weighted limma-voom Transformation* 
+To account for both sample quality and variability in read counts across samples, we applied the voomWithQualityWeights function from the limma package. This method incorporates sample-specific weights during normalization, ensuring that poor-quality samples have reduced influence on the differential expression analysis.  
+
+```{r echo = TRUE}
+# Releveling the group factor variable
+rawDGE_t$samples$group <- relevel(rawDGE_t$samples$group, ref = "WT")
+
+# Setting the desing 
+design <- model.matrix(~group, data = rawDGE_t$samples)
+colnames(design) <- c("WT", "MecrKO")
+
+## EdgeR`s voomLmFit does all this under the hood: logCPM, limmaWeighted, corfit, lmFit
+fit <- edgeR::voomLmFit(counts = rawDGE_t,
+                        design = design,
+                        sample.weights = TRUE
+                        )
+# edgeR::voomLmFit performs limma`s voomWithQualityWeights with duplicateCorrelation
+# If block is specified voom weights and intra-block correlation are each estimated twice
+
+# Set the contrasts 
+contrasts <- makeContrasts(
+  # Overall treatment effect (across both batches)
+  KOvsWT = MecrKO - WT,
+  levels = design
+)
+
+# Compute contrasts from linear model
+fit <- contrasts.fit(fit, contrasts)
+
+# Compute moderated t-statistics
+fit <- eBayes(fit)
+
+# Extract contrast coefficients
+## Overall treatment effect 
+DE_KOvsWT <- topTable(fit, 
+         coef="KOvsWT", 
+         sort.by = "t",
+         n=Inf)
+```
+  
+
+```{r}
+# Volcano Plot
+results_df <- DE_KOvsWT
+results_df$genes <- rownames(DE_KOvsWT)
+require(EnhancedVolcano)
+
+p <-  EnhancedVolcano(results_df,
+    lab = results_df$genes,
+    x = 'logFC',
+    y = 'adj.P.Val',
+    xlab = bquote(~Log[2]~ 'fold change'),
+    pCutoff = 0.05,
+    FCcutoff = 4.0,
+    pointSize = 2.0,
+    labSize = 6.0,
+    labCol = 'black',
+    labFace = 'bold',
+    boxedLabels = TRUE,
+    colAlpha = 4/5,
+    legendPosition = 'right',
+    legendLabSize = 14,
+    legendIconSize = 4.0,
+    drawConnectors = TRUE,
+    widthConnectors = 1.0,
+    colConnectors = 'black',
+    title = 'Volcano Plot',
+    subtitle = 'Differentially Expressed Genes in Mecr-KO',
+    caption = 'Thresholds: Log2FC > 4, adjusted P value < 0.05')
+
+ggsave(
+  filename = "imgs/DE_all_volcano.png",  # Specify the file path and name
+  plot = p,  # The plot to save
+  width = 10, height = 8,  # Dimensions of the image in inches
+  dpi = 300  # Resolution of the image
+)
+
+print(p)
+```
+
+
+
+
+
+
+
