@@ -15,7 +15,7 @@ output:
 ##############################
 
 # Don`t show code in the report set up 
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 
 # cleaning sessionInfo
 rm(list = ls())
@@ -157,8 +157,8 @@ custom_minimal_theme_with_grid <- function() {
       axis.text.x = element_text(size = 10),
       axis.text.y = element_text(size = 10),
       # Major and minor grid lines with transparency
-      panel.grid.major = element_line(color = "grey90", size = 0.5),  # Major grid lines (lighter)
-      panel.grid.minor = element_line(color = "grey95", size = 0.25)   # Minor grid lines (even lighter)
+      panel.grid.major = element_line(color = "grey90", linewidth = 0.5),  # Major grid lines (lighter)
+      panel.grid.minor = element_line(color = "grey95", linewidth = 0.25)   # Minor grid lines (even lighter)
     )
 }
 
@@ -203,7 +203,8 @@ ggplot(scree_data, aes(x = PC, y = var_explained)) +
   geom_bar(stat = "identity") +
   xlab("Principal Component") +
   ylab("Proportion of Variance Explained") +
-  ggtitle("Scree Plot")
+  ggtitle("Scree Plot") +
+  custom_minimal_theme_with_grid()
 ```
 
 
@@ -277,151 +278,149 @@ DE_KOvsWT <- topTable(fit,
 
 
 ```{r}
-#### Another normalisation approach 
+#### Standard quantile normalisation approach 
+
 # Read in the data (assuming you have your counts matrix)
-counts <- read.table('init_data/counts_matrix_trimmed.txt', 
-                     header = TRUE, 
-                     row.names = 1,
-                     stringsAsFactors = FALSE)
+#counts <- read.table('init_data/counts_matrix_trimmed.txt', 
+#                     header = TRUE, 
+#                     row.names = 1,
+#                     stringsAsFactors = FALSE)
 
 
 # Assign sample names
-colnames(counts) <- c('KO1', 'KO2', 'KO3', 'WT1', 'WT2', 'WT3')
+#colnames(counts) <- c('KO1', 'KO2', 'KO3', 'WT1', 'WT2', 'WT3')
 
-# Strip daway metadata
+# Strip away metadata
 # Check if there's any unwanted metadata row, e.g., 'Geneid', and remove it if necessary
 # If the first row is metadata, you can drop it explicitly:
-if ("Geneid" %in% rownames(counts)) {
-  counts <- counts[-which(rownames(counts) == "Geneid"), ]
-}
+#if ("Geneid" %in% rownames(counts)) {
+#  counts <- counts[-which(rownames(counts) == "Geneid"), ]
+#}
 
 # Convert chr to int, preserving rownames - using [] to preserve row attributes
-counts[] <- lapply(counts, as.integer)
+#counts[] <- lapply(counts, as.integer)
 
 # Check for any NA values (indicating conversion issues)
-any_na <- any(is.na(counts))
+#any_na <- any(is.na(counts))
 # If any NA values are found, investigate
-if (any_na) {
-  print("Warning: Some non-numeric values were converted to NA. Please check your data.")
-} else {
-  print("No NAs introduced during values conversion")
-}
+#if (any_na) {
+#  print("Warning: Some non-numeric values were converted to NA. Please check your data.")
+#} else {
+#  print("No NAs introduced during values conversion")
+#}
 
 
 # Perform log2 transformation with pseudocount of 1
-log2_counts <- log2(counts + 1)
+#log2_counts <- log2(counts + 1)
 
 # Quantile normalize 
-quantile_normalized_counts <- normalizeBetweenArrays(log2_counts, method = "quantile")
+#quantile_normalized_counts <- normalizeBetweenArrays(log2_counts, method = "quantile")
 
 # Calculate the average expression across samples
-AveExp <- rowMeans(quantile_normalized_counts)
+#AveExp <- rowMeans(quantile_normalized_counts)
 
 # Filter out genes with average expression less than 3
-filtered_counts <- quantile_normalized_counts[AveExp >= 3, ]
+#filtered_counts <- quantile_normalized_counts[AveExp >= 3, ]
 
 # Prepare the design matrix
 # Ensure that WT is the reference level for the group factor
-group <- factor(c(rep("KO", 3), rep("WT", 3)), levels = c("WT", "KO"))
-design <- model.matrix(~ group)
-colnames(design) <- c("WT", "MecrKO")
+#group <- factor(c(rep("KO", 3), rep("WT", 3)), levels = c("WT", "KO"))
+#design <- model.matrix(~ group)
+#colnames(design) <- c("WT", "MecrKO")
 
 # Apply limma to the filtered data
-fit <- lmFit(filtered_counts, design)
+#fit <- lmFit(filtered_counts, design)
 
 # Set the contrasts 
-contrasts <- makeContrasts(
+#contrasts <- makeContrasts(
   # Overall treatment effect (across both batches)
-  KOvsWT = MecrKO - WT,
-  levels = design
-)
+#  KOvsWT = MecrKO - WT,
+#  levels = design
+#)
 
 # Compute contrasts from linear model
-fit <- contrasts.fit(fit, contrasts)
+#fit <- contrasts.fit(fit, contrasts)
 
-fit <- eBayes(fit)
+#fit <- eBayes(fit)
 
 # Get the results for KO vs WT comparison
-DE_standard_results <- topTable(fit, coef = "KOvsWT", adjust = "fdr", n = Inf)
+#DE_standard_results <- topTable(fit, coef = "KOvsWT", adjust = "fdr", n = Inf)
 
 ```
 
 ```{r echo = TRUE}
 #write.csv2(DE_KOvsWT, file = "results/DEtable/DE_KOvsWT.csv")
 #write.table(DE_KOvsWT, file = "results/DEtable/DE_KOvsWT.txt", sep = "\t", quote = FALSE, row.names = TRUE, col.names = NA)
-write.table(DE_standard_results, file = "results/DEtable/DE_KOvsWT_st.txt", sep = "\t", quote = FALSE, row.names = TRUE, col.names = NA)
+#write.table(DE_standard_results, file = "results/DEtable/DE_KOvsWT_st.txt", sep = "\t", quote = FALSE, row.names = TRUE, col.names = NA)
+```
 
-DE_KOvsWT <- topTable(fit, 
-         coef="KOvsWT", 
-         sort.by = "t",
-         n=Inf)
+```{r echo = TRUE}
+# Check that Trb genes are in the dataset
 
-grepl("Trb", rownames(DE_KOvsWT))
-
+#grepl("Trb", rownames(DE_KOvsWT))
 
 # Find rows where "Trb" is mentioned in the row names
-trb_genes <- grepl("Trb", rownames(DE_KOvsWT))
+#trb_genes <- grepl("Trb", rownames(DE_KOvsWT))
 
 # Subset the table to show only rows that contain "Trb" in their row names
-DE_KOvsWT_trb <- DE_KOvsWT[trb_genes, ]
+#DE_KOvsWT_trb <- DE_KOvsWT[trb_genes, ]
 
 # View the results
-DE_KOvsWT_trb
+#DE_KOvsWT_trb
 
 ```
  
 ```{r}
 ##### STANDARD VOLCANO
-require(dplyr)
-
-results_df <- DE_standard_results
-results_df$genes <- rownames(DE_standard_results)
-library(EnhancedVolcano)
-
-top_genes <- c("Trbc2", "Trbc1", "Trbv1",
-               "Trbv19", "Trbv13-1", "Trbv13-2", "Trbv13-3",
-               "Trbv20", "Trbv5", "Trbv31",
-               "Trbv31", "Trbv3", "Trbv26",
-               "Trbv14", "Trbv12", "Trbv29", "Trbv4"
-               )
-
-# Plot using EnhancedVolcano with the selected genes
-p <- EnhancedVolcano(results_df,
-    lab = results_df$genes,
-    x = 'logFC',
-    y = 'P.Value',
-    selectLab = top_genes,  # Only label the top 5 negative and positive DE genes
-    xlab = bquote(~Log[2]~ 'fold change'),
-    pCutoff = 0.05,
-    FCcutoff = 4.0,
-    pointSize = 2.0,
-    labSize = 6.0,
-    labCol = 'black',
-    labFace = 'bold',
-    boxedLabels = TRUE,
-    colAlpha = 4/5,
-    legendPosition = 'right',
-    legendLabSize = 14,
-    legendIconSize = 4.0,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    title = 'Volcano Plot',
-    subtitle = 'Differentially Expressed Genes in MECR-KO against WT',
-    caption = 'Thresholds: Log2FC > 4, P value < 0.05')
-
-# Save the plot
-ggsave(
-  filename = "imgs/DE_all_volcano_Trb_st.png",  # Specify the file path and name
-  plot = p,  # The plot to save
-  width = 10, height = 8,  # Dimensions of the image in inches
-  dpi = 300  # Resolution of the image
-)
-
-# Print the plot
-print(p)
+# require(dplyr)
+# 
+# results_df <- DE_standard_results
+# results_df$genes <- rownames(DE_standard_results)
+# library(EnhancedVolcano)
+# 
+# top_genes <- c("Trbc2", "Trbc1", "Trbv1",
+#                "Trbv19", "Trbv13-1", "Trbv13-2", "Trbv13-3",
+#                "Trbv20", "Trbv5", "Trbv31",
+#                "Trbv31", "Trbv3", "Trbv26",
+#                "Trbv14", "Trbv12", "Trbv29", "Trbv4"
+#                )
+# 
+# # Plot using EnhancedVolcano with the selected genes
+# p <- EnhancedVolcano(results_df,
+#     lab = results_df$genes,
+#     x = 'logFC',
+#     y = 'P.Value',
+#     selectLab = top_genes,  # Only label the top 5 negative and positive DE genes
+#     xlab = bquote(~Log[2]~ 'fold change'),
+#     pCutoff = 0.05,
+#     FCcutoff = 4.0,
+#     pointSize = 2.0,
+#     labSize = 6.0,
+#     labCol = 'black',
+#     labFace = 'bold',
+#     boxedLabels = TRUE,
+#     colAlpha = 4/5,
+#     legendPosition = 'right',
+#     legendLabSize = 14,
+#     legendIconSize = 4.0,
+#     drawConnectors = TRUE,
+#     widthConnectors = 1.0,
+#     colConnectors = 'black',
+#     title = 'Volcano Plot',
+#     subtitle = 'Differentially Expressed Genes in MECR-KO against WT',
+#     caption = 'Thresholds: Log2FC > 4, P value < 0.05')
+# 
+# # Save the plot
+# ggsave(
+#   filename = "imgs/DE_all_volcano_Trb_st.png",  # Specify the file path and name
+#   plot = p,  # The plot to save
+#   width = 10, height = 8,  # Dimensions of the image in inches
+#   dpi = 300  # Resolution of the image
+# )
+# 
+# # Print the plot
+# print(p)
 ```
- 
  
  
 ```{r}
@@ -444,6 +443,9 @@ top_positive <- results_df %>%
 # Combine the top negative and positive DE genes for labeling
 top_genes <- c(top_negative, top_positive)
 
+# Color pallete
+color_pallette <- c("gray", "forestgreen", "skyblue", "orange")
+
 # Plot using EnhancedVolcano with the selected genes
 p <- EnhancedVolcano(results_df,
     lab = results_df$genes,
@@ -467,7 +469,9 @@ p <- EnhancedVolcano(results_df,
     colConnectors = 'black',
     title = 'Volcano Plot',
     subtitle = 'Differentially Expressed Genes in MECR-KO against WT',
-    caption = 'Thresholds: Log2FC > 4, P value < 0.05')
+    caption = 'Thresholds: Log2FC > 4, P value < 0.05',
+    col = color_pallette
+    )
 
 # Save the plot
 ggsave(
@@ -482,50 +486,51 @@ print(p)
 ```
 
 ```{r}
-require(dplyr)
-
-trb_genes <- c("Trbc2", "Trbc1", "Trbv1",
-               "Trbv19", "Trbv13-1", "Trbv13-2", "Trbv13-3",
-               "Trbv20", "Trbv5", "Trbv31",
-               "Trbv31", "Trbv3", "Trbv26",
-               "Trbv14", "Trbv12", "Trbv29", "Trbv4"
-               )
-
-# Plot using EnhancedVolcano with the selected genes
-p <- EnhancedVolcano(results_df,
-    lab = results_df$genes,
-    x = 'logFC',
-    y = 'P.Value',
-    selectLab = trb_genes,  # Only label the top 5 negative and positive DE genes
-    xlab = bquote(~Log[2]~ 'fold change'),
-    pCutoff = 0.05,
-    FCcutoff = 4.0,
-    pointSize = 2.0,
-    labSize = 6.0,
-    labCol = 'black',
-    labFace = 'bold',
-    boxedLabels = TRUE,
-    colAlpha = 4/5,
-    legendPosition = 'right',
-    legendLabSize = 14,
-    legendIconSize = 4.0,
-    drawConnectors = TRUE,
-    widthConnectors = 1.0,
-    colConnectors = 'black',
-    title = 'Volcano Plot',
-    subtitle = 'Differentially Expressed Genes in MECR-KO against WT',
-    caption = 'Thresholds: Log2FC > 4, adjusted P value < 0.05')
-
-# Save the plot
-ggsave(
-  filename = "imgs/DE_all_volcano_Trb_limma.png",  # Specify the file path and name
-  plot = p,  # The plot to save
-  width = 10, height = 8,  # Dimensions of the image in inches
-  dpi = 300  # Resolution of the image
-)
-
-# Print the plot
-print(p)
+# require(dplyr)
+# 
+# trb_genes <- c("Trbc2", "Trbc1", "Trbv1",
+#                "Trbv19", "Trbv13-1", "Trbv13-2", "Trbv13-3",
+#                "Trbv20", "Trbv5", "Trbv31",
+#                "Trbv31", "Trbv3", "Trbv26",
+#                "Trbv14", "Trbv12", "Trbv29", "Trbv4"
+#                )
+# 
+# # Plot using EnhancedVolcano with the selected genes
+# p <- EnhancedVolcano(results_df,
+#     lab = results_df$genes,
+#     x = 'logFC',
+#     y = 'P.Value',
+#     selectLab = trb_genes,  # Only label the top 5 negative and positive DE genes
+#     xlab = bquote(~Log[2]~ 'fold change'),
+#     pCutoff = 0.05,
+#     FCcutoff = 4.0,
+#     pointSize = 2.0,
+#     labSize = 6.0,
+#     labCol = 'black',
+#     labFace = 'bold',
+#     boxedLabels = TRUE,
+#     colAlpha = 4/5,
+#     legendPosition = 'right',
+#     legendLabSize = 14,
+#     legendIconSize = 4.0,
+#     drawConnectors = TRUE,
+#     widthConnectors = 1.0,
+#     colConnectors = 'black',
+#     title = 'Volcano Plot',
+#     subtitle = 'Differentially Expressed Genes in MECR-KO against WT',
+#     caption = 'Thresholds: Log2FC > 4, adjusted P value < 0.05',
+#     col = color_pallette)
+# 
+# # Save the plot
+# ggsave(
+#   filename = "imgs/DE_all_volcano_Trb_limma.png",  # Specify the file path and name
+#   plot = p,  # The plot to save
+#   width = 10, height = 8,  # Dimensions of the image in inches
+#   dpi = 300  # Resolution of the image
+# )
+# 
+# # Print the plot
+# print(p)
 ```
 
 
@@ -719,13 +724,14 @@ GSE_H <- GSEA(ranked_genes,
 p <- custom_dotplot(gsea_obj = GSE_H, 
                showCategory = 50, 
                font.size = 10, 
-               title = "Top MECR-KO GSEA enriched hallmark pathways, qvalue < 0.05",
+               title = "Top MECR-KO GSEA: All hallmark pathways",
                sortBy = "GeneRatio", 
                filterBy = "NES", 
                q_cut = 1,
                replace_ = TRUE, 
                capitalize_1 = FALSE,
-               capitalize_all = FALSE 
+               capitalize_all = FALSE, 
+               min.dotSize = 2
                )
 
 # Extract the data used for plotting
@@ -744,7 +750,7 @@ gene_ratio_threshold <- min(gsea_data$GeneRatio)
 
 # Add a vertical dashed line and label at this GeneRatio
 p <- p + 
-  geom_vline(xintercept = gene_ratio_threshold, linetype = "dashed", color = "red", size = 1) +
+  geom_vline(xintercept = gene_ratio_threshold, linetype = "dashed", color = "red", size = 0.5) +
   annotate("text", x = gene_ratio_threshold, y = Inf, label = "qvalue = 0.05 threshold",
            hjust = -0.1, vjust = 1.5, color = "red", size = 4, angle = 0)
 
@@ -787,13 +793,11 @@ ggsave(
 ```
 
 ### Running score plots 
-```{r}
-library(enrichplot)
-```
-
 
 #### Top 5 Pathways running score plot 
 ```{r}
+library(enrichplot)
+
 p <- gseaplot2(GSE_H, geneSetID = 1:5)
 p
 
@@ -904,6 +908,15 @@ library(dplyr)
 library(stringr)
 library(ggrepel)
 
+##################
+### Combined Volcano Plot Function with Multiple Styles and p_method option
+##################
+
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(ggrepel)
+
 # Custom theme with minimal style and grid (used in multiple styles)
 custom_minimal_theme_with_grid <- function() {
   theme_minimal(base_size = 14) +
@@ -924,8 +937,10 @@ custom_minimal_theme_with_grid <- function() {
 # Main function to generate the volcano plot with different styles
 analyze_pathway_volcano <- function(pathway_name, gsea_results, de_results, 
                                     p_cutoff = 0.05, fc_cutoff = 2.0, 
-                                    label_method = "default", max_overlaps = 100, style = 'clean', 
-                                    x_breaks = 1) {  # Add x_breaks parameter
+                                    label_method = "default", max_overlaps = 100, 
+                                    style = 'clean', x_breaks = 1, 
+                                    p_method = "P.Value") {  # Add p_method parameter with default
+  
   # Step 1: Extract the relevant genes for the specified pathway
   message("Extracting genes for the pathway: ", pathway_name)
   pathway_genes <- as.data.frame(gsea_results) %>%
@@ -940,7 +955,7 @@ analyze_pathway_volcano <- function(pathway_name, gsea_results, de_results,
     mutate(
       in_pathway = rownames(.) %in% pathway_genes,
       significant_fc = abs(logFC) > fc_cutoff,
-      significant_p = adj.P.Val < p_cutoff,
+      significant_p = get(p_method) < p_cutoff,  # Use the chosen p-value method
       highlight = significant_fc & significant_p
     ) %>%
     # Add a color column based on the condition
@@ -958,29 +973,38 @@ analyze_pathway_volcano <- function(pathway_name, gsea_results, de_results,
     label_method,
     "default" = de_results %>% filter(in_pathway & highlight),  # Only label pathway genes with both p-value & Log2FC significant
     "fc" = de_results %>% filter(in_pathway & abs(logFC) > fc_cutoff),  # Label pathway genes crossing fold change threshold
-    "p" = de_results %>% filter(in_pathway & adj.P.Val < p_cutoff),  # Label pathway genes crossing p-value threshold
-    "all" = de_results %>% filter(in_pathway & (abs(logFC) > fc_cutoff | adj.P.Val < p_cutoff)),  # Label all significant pathway genes (either p-value or fold change)
+    "p" = de_results %>% filter(in_pathway & get(p_method) < p_cutoff),  # Label pathway genes crossing p-value threshold
+    "all" = de_results %>% filter(in_pathway & (abs(logFC) > fc_cutoff | get(p_method) < p_cutoff)),  # Label all significant pathway genes (either p-value or fold change)
     stop("Invalid label_method. Please use 'default', 'fc', 'p', or 'all'.")
   )
-
+  
   # Determine the x-axis limits based on the user-defined x_breaks
   x_min <- floor(min(de_results$logFC) / x_breaks) * x_breaks  # Start from nearest multiple <= min(logFC)
   x_max <- ceiling(max(de_results$logFC) / x_breaks) * x_breaks  # End at nearest multiple >= max(logFC)
 
-  # Define base plot
-  base_plot <- ggplot(de_results, aes(x = logFC, y = -log10(adj.P.Val))) +
+  
+  # Determine y axis label dynamically 
+    y_axis_label <- if (p_method == "P.Value") {
+    bquote(-Log[10]~P)  # Use subscript for Log10 when p_method is P.Value
+  } else {
+    bquote(-Log[10]*"("*.(p_method)*")")  # Use p_method dynamically in the label
+  }
+  
+ # Step 3: Define base plot based on the chosen p_method
+  base_plot <- ggplot(de_results, aes(x = logFC, y = -log10(get(p_method)))) +
     geom_hline(yintercept = -log10(p_cutoff), linetype = "dashed") +
     geom_vline(xintercept = c(-fc_cutoff, fc_cutoff), linetype = "dashed") +
     labs(
       title = gsub("_", " ", pathway_name),
       subtitle = paste("p-value cutoff:", p_cutoff, "| FC cutoff:", fc_cutoff),
-      x = "Log2 Fold Change",
-      y = "-Log10(Adj. P-value)"
+      x = bquote(-Log[2]~FC),
+      # Conditional y-axis label based on the p_method parameter with proper subscript for "10"
+      y = y_axis_label  # Use the dynamically created y-axis label
     ) +
-    # Set x-axis breaks based on user-defined x_breaks, ensuring alignment with the breaks pattern
+    # Set x-axis breaks based on user-defined x_breaks
     scale_x_continuous(breaks = seq(x_min, x_max, by = x_breaks), limits = c(x_min, x_max))
 
-  # Choose plot style based on user input
+  # Step 4: Choose plot style based on user input
   plot <- switch(
     style,
     'clean' = plot_style_clean(base_plot, de_results, pathway_genes, label_data, p_cutoff, fc_cutoff, max_overlaps),
@@ -991,6 +1015,7 @@ analyze_pathway_volcano <- function(pathway_name, gsea_results, de_results,
   
   return(plot)
 }
+
 
 # Style 1: Clean style (original first style)
 plot_style_clean <- function(base_plot, de_results, pathway_genes, label_data, p_cutoff, fc_cutoff, max_overlaps) {
@@ -1116,7 +1141,7 @@ plot_style_gpt <- function(base_plot, de_results, pathway_genes, label_data, p_c
 
 ```{r}
 ##################
-### Combined Volcano Interactive: Claude with GPT Plotly Hover
+### Combined Volcano Interactive: Claude with GPT Plotly Hover and p_method logic
 ##################
 
 library(ggplot2)
@@ -1125,13 +1150,12 @@ library(stringr)
 library(ggrepel)
 library(plotly)  # Add plotly for interactivity
 
-
 # Modify the analyze_pathway_volcano function to return a plotly object with hover
 analyze_pathway_volcano_interactive <- function(pathway_name, gsea_results, de_results, 
                                                 p_cutoff = 0.05, fc_cutoff = 2.0, 
                                                 label_method = "default", max_overlaps = 100, 
-                                                style = 'clean', 
-                                                x_breaks = 2) {
+                                                style = 'clean', x_breaks = 2,
+                                                p_method = "P.Value") {  # Add p_method parameter
   
   # Extract the relevant genes for the specified pathway
   message("Extracting genes for the pathway: ", pathway_name)
@@ -1147,11 +1171,11 @@ analyze_pathway_volcano_interactive <- function(pathway_name, gsea_results, de_r
     mutate(
       in_pathway = rownames(.) %in% pathway_genes,  # Mark pathway genes
       significant_fc = abs(logFC) > fc_cutoff,
-      significant_p = adj.P.Val < p_cutoff,
+      significant_p = get(p_method) < p_cutoff,  # Use the chosen p-value method dynamically
       highlight = significant_fc & significant_p,
       hover_info = paste("Gene:", rownames(.),
                          "<br>Log2FC:", round(logFC, 2),
-                         "<br>Adj.P.Value:", round(adj.P.Val, 5))  # Hover text with gene info
+                         "<br>", p_method, ":", round(get(p_method), 5))  # Dynamic hover text with gene info
     ) %>%
     # Add a color column based on the condition
     mutate(
@@ -1168,8 +1192,8 @@ analyze_pathway_volcano_interactive <- function(pathway_name, gsea_results, de_r
     label_method,
     "default" = de_results %>% filter(in_pathway & highlight),  # Only label pathway genes with both p-value & Log2FC significant
     "fc" = de_results %>% filter(in_pathway & abs(logFC) > fc_cutoff),  # Label pathway genes crossing fold change threshold
-    "p" = de_results %>% filter(in_pathway & adj.P.Val < p_cutoff),  # Label pathway genes crossing p-value threshold
-    "all" = de_results %>% filter(in_pathway & (abs(logFC) > fc_cutoff | adj.P.Val < p_cutoff)),  # Label all significant pathway genes (either p-value or fold change)
+    "p" = de_results %>% filter(in_pathway & get(p_method) < p_cutoff),  # Label pathway genes crossing p-value threshold
+    "all" = de_results %>% filter(in_pathway & (abs(logFC) > fc_cutoff | get(p_method) < p_cutoff)),  # Label all significant pathway genes (either p-value or fold change)
     stop("Invalid label_method. Please use 'default', 'fc', 'p', or 'all'.")
   )
 
@@ -1177,16 +1201,23 @@ analyze_pathway_volcano_interactive <- function(pathway_name, gsea_results, de_r
   x_min <- floor(min(de_results$logFC) / x_breaks) * x_breaks  # Start from nearest multiple <= min(logFC)
   x_max <- ceiling(max(de_results$logFC) / x_breaks) * x_breaks  # End at nearest multiple >= max(logFC)
 
+  # Define y-axis label as a string for plotly compatibility
+  y_axis_label <- if (p_method == "P.Value") {
+    "-Log10 P"
+  } else {
+    paste0("-Log10(", p_method, ")")
+  }
+
   # Define base plot with hover information and color mapping
-  base_plot <- ggplot(de_results, aes(x = logFC, y = -log10(adj.P.Val), 
+  base_plot <- ggplot(de_results, aes(x = logFC, y = -log10(get(p_method)), 
                                       text = hover_info, color = in_pathway)) +
     geom_hline(yintercept = -log10(p_cutoff), linetype = "dashed") +
     geom_vline(xintercept = c(-fc_cutoff, fc_cutoff), linetype = "dashed") +
     labs(
       title = gsub("_", " ", pathway_name),
       subtitle = paste("p-value cutoff:", p_cutoff, "| FC cutoff:", fc_cutoff),
-      x = "Log2 Fold Change",
-      y = "-Log10(Adj. P-value)"
+      x = "Log2FC",
+      y = y_axis_label  # Use the dynamically created y-axis label as a string
     ) +
     # Set x-axis breaks based on user-defined x_breaks, ensuring alignment with the breaks pattern
     scale_x_continuous(breaks = seq(x_min, x_max, by = x_breaks), limits = c(x_min, x_max)) +
@@ -1202,14 +1233,11 @@ analyze_pathway_volcano_interactive <- function(pathway_name, gsea_results, de_r
     stop("Invalid style. Please use 'clean', 'claude', or 'gpt'.")
   )
   
-  # Convert ggplot object to plotly
+  # Convert ggplot object to plotly for interactivity
   plotly_obj <- ggplotly(ggplot_obj, tooltip = c("text"))  # Use the custom hover text
   
   return(plotly_obj)
 }
-
-# Call this function with your data to create the interactive plot.
-
 ```
 
 
@@ -1221,10 +1249,11 @@ p <- analyze_pathway_volcano(
   pathway_name = "HALLMARK_MYC_TARGETS_V1",
   gsea_results = GSE_H,
   de_results = DE_KOvsWT,
-  p_cutoff = 0.05,
-  fc_cutoff = 2.0,
+  p_cutoff = 0.05, 
+  p_method = "P.Value",
+  fc_cutoff = 4.0,
   label_method = "p",  # or "fc"
-  max_overlaps = 110, 
+  max_overlaps = 100, 
   style = "clean",
   x_breaks = 5
 ) 
@@ -1246,10 +1275,10 @@ ggsave(
 # Generate an interactive volcano plot
 interactive_plot <- analyze_pathway_volcano_interactive(
   pathway_name = "HALLMARK_MYC_TARGETS_V1",
-  gsea_results = hallmark_results,
+  gsea_results = GSE_H,
   de_results = DE_KOvsWT,
   p_cutoff = 0.05,
-  fc_cutoff = 2.0,
+  fc_cutoff = 4.0,
   label_method = "default",
   max_overlaps = 50,
   style = 'clean',
@@ -1287,9 +1316,9 @@ p <- analyze_pathway_volcano(
   gsea_results = GSE_H,
   de_results = DE_KOvsWT,
   p_cutoff = 0.05,
-  fc_cutoff = 2.0,
+  fc_cutoff = 4.0,
   label_method = "p",  # or "fc"
-  max_overlaps = 110, 
+  max_overlaps = 60, 
   style = "clean",
   x_breaks = 5
 ) 
@@ -1311,10 +1340,10 @@ ggsave(
 # Generate an interactive volcano plot
 interactive_plot <- analyze_pathway_volcano_interactive(
   pathway_name = "HALLMARK_MTORC1_SIGNALING",
-  gsea_results = hallmark_results,
+  gsea_results = GSE_H,
   de_results = DE_KOvsWT,
   p_cutoff = 0.05,
-  fc_cutoff = 2.0,
+  fc_cutoff = 4.0,
   label_method = "default",
   max_overlaps = 50,
   style = 'clean',
@@ -1356,7 +1385,7 @@ p <- analyze_pathway_volcano(
   gsea_results = GSE_H,
   de_results = DE_KOvsWT,
   p_cutoff = 0.05,
-  fc_cutoff = 2.0,
+  fc_cutoff = 4.0,
   label_method = "p",  # or "fc"
   max_overlaps = 50, 
   style = "clean",
@@ -1381,7 +1410,7 @@ ggsave(
 # Generate an interactive volcano plot
 interactive_plot <- analyze_pathway_volcano_interactive(
   pathway_name = "HALLMARK_PI3K_AKT_MTOR_SIGNALING",
-  gsea_results = hallmark_results,
+  gsea_results = GSE_H,
   de_results = DE_KOvsWT,
   p_cutoff = 0.05,
   fc_cutoff = 2.0,
@@ -1415,7 +1444,107 @@ ggsave(
 ```
 
 
-## 4.2 MSigDB C2 Canonical Pathways (CP) gene sets enrichment analysis
+## 4.2 MSigDB C5 Gene Ontology Molecular Function Sets enrichment analysis
+
+```{r echo = FALSE}
+library(org.Mm.eg.db)  # Mouse-specific annotation
+library(msigdbr) # MSigDB
+library(clusterProfiler)
+
+# Prepare the ranked gene list (from limma results)
+# Rank by logFC or another relevant statistic
+
+
+# Retrieve C5 Gen Ontologygene sets from MSigDB
+msigdb_C5 <- msigdbr(species = "Mus musculus", 
+                     category = "C5",
+                     subcategory = "MF")
+
+# Perform GSEA using clusterProfiler
+GSE_GO <- GSEA(ranked_genes, 
+                     TERM2GENE = msigdb_C5[, c("gs_name", "gene_symbol")], 
+                     pvalueCutoff = 1, 
+                     verbose = FALSE,
+                     pAdjustMethod = "fdr",
+                     eps = 0, # p value is not 
+                     by = "fgsea",
+                     seed = 123,
+                     nPermSimple = 100000)
+```
+
+### All GO Pathways
+```{r}
+p <- custom_dotplot(gsea_obj = GSE_GO, 
+               showCategory = 100, 
+               font.size = 10, 
+               title = "MECR-KO GSEA GO pathways, qvalue < 0.05",
+               sortBy = "GeneRatio", 
+               filterBy = "NES", 
+               q_cut = 1,
+               replace_ = TRUE, 
+               capitalize_1 = FALSE,
+               capitalize_all = FALSE 
+               )
+
+# Extract the data used for plotting
+gsea_data <- as.data.frame(GSE_GO)
+
+# Calculate GeneRatio and filter for qvalue < 0.05
+gsea_data <- gsea_data %>%
+  group_by(ID) %>%
+  summarise(count = sum(str_count(core_enrichment, "/")) + 1) %>%
+  left_join(gsea_data, by = "ID") %>%
+  mutate(GeneRatio = count / setSize) %>%
+  filter(qvalue < 0.05)  # Apply the qvalue filter
+
+# Find the minimum GeneRatio corresponding to qvalue < 0.05
+gene_ratio_threshold <- min(gsea_data$GeneRatio)
+
+# Add a vertical dashed line and label at this GeneRatio
+p <- p + 
+  geom_vline(xintercept = gene_ratio_threshold-0.01, linetype = "dashed", color = "red", size = 1) +
+  annotate("text", x = gene_ratio_threshold, y = Inf, label = "qvalue = 0.05 threshold",
+           hjust = -0.1, vjust = 1.5, color = "red", size = 4, angle = 0)
+
+p
+
+# Save the plot to disk using ggsave()
+ggsave(
+  filename = "imgs/GSEA/GO/GSEA_GO_all.png",  # Specify the file path and name
+  plot = p,  # The plot to save
+  width = 14, height = 16,  # Dimensions of the image in inches
+  dpi = 300  # Resolution of the image
+)
+```
+
+### Top 20 C2CP Pathways
+
+```{r}
+p <- custom_dotplot(gsea_obj = GSE_GO, 
+               showCategory = 20, 
+               font.size = 10, 
+               title = "Top MECR-KO GSEA C2 curated pathways pathways, qvalue < 0.05",
+               sortBy = "GeneRatio", 
+               filterBy = "NES", 
+               q_cut = 0.05,
+               replace_ = TRUE, 
+               capitalize_1 = FALSE,
+               capitalize_all = FALSE 
+               )
+
+print(p)
+
+# Save the plot to disk using ggsave()
+ggsave(
+  filename = "imgs/GSEA/GO/GSEA_GO_top.png",  # Specify the file path and name
+  plot = p,  # The plot to save
+  width = 10, height = 8,  # Dimensions of the image in inches
+  dpi = 300  # Resolution of the image
+)
+```
+
+
+## 4.3 MSigDB C2 Canonical Pathways (CP) gene sets enrichment analysis
 
 ```{r echo = FALSE}
 library(org.Mm.eg.db)  # Mouse-specific annotation
@@ -1567,7 +1696,7 @@ ggsave(
 ```
 
 
-## 4.3 KEGG pathways enrichment analysis
+## 4.4 KEGG pathways enrichment analysis
 
 
 ```{r echo = FALSE}
