@@ -4,8 +4,10 @@ author: "Anton_Zhelonkin"
 date: "`r Sys.Date()`"
 output: 
   html_document:
+    css: snippet.css  # Path to your custom CSS file
     toc: true
     theme: united
+    number_sections: true # Number sections (optional)
 ---
 
 
@@ -112,6 +114,8 @@ rawDGE_t$samples$group<- relevel(rawDGE_t$samples$group, ref = "WT")
 # calculating logCPM
 logCPM <- cpm(rawDGE_t, log = TRUE, prior.count = 1)
 ```
+
+<hr />
 
 # 2. Exploratory analysis
 
@@ -225,6 +229,7 @@ pheatmap(sample_cor,
          method = "ward.D")
 ```
 
+<hr />
 
 # 3. Statistical Modelling 
 
@@ -745,16 +750,12 @@ interactive_volcano_plot <- ggplotly(volcano_plot, tooltip = "text") %>%
 # Print the interactive plot
 interactive_volcano_plot
 
-# Print the interactive plot
-interactive_volcano_plot
-
 # Save the interactive plot as an HTML file if needed
 htmlwidgets::saveWidget(interactive_volcano_plot, "volcano_plot_interactive.html")
-
 ```
 
 
-```{r}
+```{r include = FALSE}
 # require(dplyr)
 # 
 # trb_genes <- c("Trbc2", "Trbc1", "Trbv1",
@@ -802,6 +803,7 @@ htmlwidgets::saveWidget(interactive_volcano_plot, "volcano_plot_interactive.html
 # print(p)
 ```
 
+<hr />
 
 # 4. Gene Set Enrichment Analysis
 
@@ -813,14 +815,6 @@ We tested pathway enrichment against `msigdbr` genesets database.
 * GO
 * MF: subset of GO - Gene sets derived from the GO Molecular Function ontology. 
 The ranked gene list for the GSEA was ranked based on the moderated t-statistic. 
-
-We`ll be specifically focusing on the target pathways outlined below: 
-* TCR signaling 
-* Myc pathways 
-* JAK/STAT pathway
-* Pi3K pathway 
-* mTOR pathway 
-* NFAT
 
 
 ## 4.1 MSigDB Hallmark Pathways enrichment analysis
@@ -953,7 +947,7 @@ custom_dotplot <- function(gsea_obj, showCategory = 10, font.size = 10, title = 
 }
 ```
 
-Here is the list of the enriched Hallmark Pathways.
+
 
 ```{r echo = FALSE}
 library(org.Mm.eg.db)  # Mouse-specific annotation
@@ -987,7 +981,10 @@ GSE_H <- GSEA(ranked_genes,
                      nPermSimple = 100000)
 ```
 
+
 ### All Hallmark pathways
+
+
 
 ```{r fig.width=10, fig.height=8}
 p <- custom_dotplot(gsea_obj = GSE_H, 
@@ -1037,6 +1034,8 @@ ggsave(
 
 ### Top 20 Hallmark Pathways
 
+
+
 ```{r fig.width=10, fig.height=8}
 p <- custom_dotplot(gsea_obj = GSE_H, 
                showCategory = 20, 
@@ -1061,9 +1060,14 @@ ggsave(
 )
 ```
 
+
+
 ### Running score plots 
 
+
 #### Top 5 Pathways running score plot 
+
+
 ```{r}
 library(enrichplot)
 
@@ -1079,7 +1083,6 @@ ggsave(
 )
 ```
 
-#### Top 12 running score plot 
 ```{r}
 # Define the custom function to plot GSEA results
 plot_gsea_results <- function(gsea_results, n_plots = 12) {
@@ -1137,7 +1140,8 @@ plot_gsea_results <- function(gsea_results, n_plots = 12) {
 }
 ```
 
-```{r fig.width=14, fig.height=8}
+
+```{r fig.width=14, fig.height=8, include = FALSE}
 # Display the top 12 pathways:
 p12 <- plot_gsea_results(GSE_H, n_plots = 12)
 p12
@@ -1150,7 +1154,9 @@ ggsave(
 )
 ```
 
+
 #### Top 24 running score plot 
+
 
 ```{r fig.width=14, fig.height=18}
 # Display top 24 pathways
@@ -1166,7 +1172,10 @@ ggsave(
 )
 ```
 
+
+
 ### Pathway-specific Plots
+
 ```{r}
 ##################
 ### Combined Volcano Plot Function with Multiple Styles
@@ -1513,6 +1522,7 @@ analyze_pathway_volcano_interactive <- function(pathway_name, gsea_results, de_r
 
 #### Myc pathway 
 
+
 ```{r include = FALSE}
 p <- analyze_pathway_volcano(
   pathway_name = "HALLMARK_MYC_TARGETS_V1",
@@ -1585,6 +1595,7 @@ ggsave(
 
 #### MTORC1 pathway
 
+
 ```{r include = FALSE}
 p <- analyze_pathway_volcano(
   pathway_name = "HALLMARK_MTORC1_SIGNALING",
@@ -1654,6 +1665,7 @@ ggsave(
 ```
 
 #### PI3K-AKT-MTOR pathway
+
 
 ```{r include = FALSE}
 p <- analyze_pathway_volcano(
@@ -1725,8 +1737,10 @@ ggsave(
 )
 ```
 
+<hr />
 
 ## 4.2 MSigDB C5 Gene Ontology Molecular Function Sets enrichment analysis
+
 
 ```{r echo = FALSE}
 library(org.Mm.eg.db)  # Mouse-specific annotation
@@ -1755,6 +1769,8 @@ GSE_GO <- GSEA(ranked_genes,
 ```
 
 ### All GO Pathways
+
+
 ```{r fig.width=10, fig.height=14}
 p <- custom_dotplot(gsea_obj = GSE_GO, 
                showCategory = 100, 
@@ -1802,7 +1818,11 @@ ggsave(
 )
 ```
 
+
+
 ### Top 20 GO:MF Pathways
+
+
 ```{r fig.width=10, fig.height=8}
 p <- custom_dotplot(gsea_obj = GSE_GO, 
                showCategory = 20, 
@@ -1832,10 +1852,11 @@ ggsave(
 
 
 
-## Running score plots
-#### Top 12 running score plot 
 
-```{r fig.width=14, fig.height=8}
+## Running score plots
+
+
+```{r fig.width=14, fig.height=8, include = FALSE}
 # Display the top 12 pathways:
 p12 <- plot_gsea_results(GSE_GO, n_plots = 12)
 p12
@@ -1850,6 +1871,7 @@ ggsave(
 ```
 
 #### Top 24 running score plot 
+
 
 ```{r fig.width=14, fig.height=18}
 # Display top 24 pathways
@@ -1866,9 +1888,12 @@ ggsave(
 ```
 
 
+
 ## Pathway specific plots
 
+
 #### Electron Transfer Activity
+
 
 ```{r include = FALSE}
 p <- analyze_pathway_volcano(
@@ -1924,6 +1949,7 @@ htmlwidgets::saveWidget(interactive_plot, "imgs/volcano/GO/Electron_transfer.htm
 
 #### WNT Receptor Activity
 
+
 ```{r include = FALSE}
 p <- analyze_pathway_volcano(
   pathway_name = "GOMF_WNT_ACTIVATED_RECEPTOR_ACTIVITY",
@@ -1976,9 +2002,10 @@ interactive_plot
 htmlwidgets::saveWidget(interactive_plot, "imgs/volcano/GO/WNT.html")
 ```
 
-
+<hr />
 
 ## 4.3 MSigDB C2 Canonical Pathways (CP) gene sets enrichment analysis
+
 
 ```{r echo = FALSE}
 library(org.Mm.eg.db)  # Mouse-specific annotation
@@ -2007,6 +2034,8 @@ GSE_C2CP <- GSEA(ranked_genes,
 ```
 
 ### All C2CP Pathways
+
+
 ```{r fig.width=10, fig.height=14}
 p <- custom_dotplot(gsea_obj = GSE_C2CP, 
                showCategory = 100, 
@@ -2051,7 +2080,10 @@ ggsave(
 )
 ```
 
+
+
 ### Top 20 C2CP Pathways
+
 
 ```{r fig.width=10, fig.height=8}
 p <- custom_dotplot(gsea_obj = GSE_C2CP, 
@@ -2078,12 +2110,16 @@ ggsave(
 ```
 
 ### Running score plots 
+
 ```{r}
 library(enrichplot)
 ```
 
 
+
 #### Top 5 Pathways running score plot 
+
+
 ```{r}
 p <- gseaplot2(GSE_C2CP, geneSetID = 1:5)
 p
@@ -2097,9 +2133,8 @@ ggsave(
 )
 ```
 
-#### Top 12 running score plot 
 
-```{r fig.width=14, fig.height=8}
+```{r fig.width=14, fig.height=8, include = FALSE}
 # Display the top 12 pathways:
 p12 <- plot_gsea_results(GSE_C2CP, n_plots = 12)
 p12
@@ -2113,7 +2148,9 @@ ggsave(
 ```
 
 
+
 #### Top 24 running score plot 
+
 
 ```{r fig.width=14, fig.height=18}
 # Display top 24 pathways
@@ -2129,6 +2166,7 @@ ggsave(
 )
 ```
 
+<hr />
 
 ## 4.4 KEGG pathways enrichment analysis
 
@@ -2226,7 +2264,10 @@ ggsave(
 )
 ```
 
+
+
 ### Top 20 KEGG Pathways
+
 
 ```{r fig.width=10, fig.height=8}
 p <- custom_dotplot(gsea_obj = GSE_msigKEGG, 
@@ -2291,7 +2332,11 @@ GSE_msigKEGG_no_disease <- GSEA(ranked_genes,
                      nPermSimple = 100000)
 ```
 
+
+
 ### All KEGG (no disease) Pathways
+
+
 ```{r fig.width=10, fig.height=14}
 p <- custom_dotplot(gsea_obj = GSE_msigKEGG_no_disease, 
                showCategory = 100, 
@@ -2336,7 +2381,9 @@ ggsave(
 )
 ```
 
+
 ### Top 20 KEGG (no disese) Pathways
+
 
 ```{r fig.width=10, fig.height=8}
 p <- custom_dotplot(gsea_obj = GSE_msigKEGG_no_disease, 
@@ -2378,9 +2425,8 @@ ggsave(
 )
 ```
 
-#### Top 12 running score plot 
 
-```{r fig.width=14, fig.height=8}
+```{r fig.width=14, fig.height=8, include = FALSE}
 # Display the top 12 pathways:
 p12 <- plot_gsea_results(GSE_msigKEGG_no_disease, n_plots = 12)
 p12
@@ -2410,9 +2456,11 @@ ggsave(
 )
 ```
 
+
 ### Pathway-specific Plots
 
 #### Antigen Processing & Presentation
+
 
 ```{r include = FALSE}
 p <- analyze_pathway_volcano(
@@ -2464,7 +2512,9 @@ htmlwidgets::saveWidget(interactive_plot, "imgs/volcano/KEGG/AGprocessing.html")
 ```
 
 
+
 #### AG processing running score plot 
+
 
 ```{r}
 title = "KEGG ANTIGEN PROCESSING AND PRESENTATION"
@@ -2485,6 +2535,7 @@ ggsave(
 ```
 
 #### TCR signaling 
+
 
 ```{r include = FALSE}
 p <- analyze_pathway_volcano(
@@ -2512,6 +2563,7 @@ ggsave(
 )
 ```
 
+
 ```{r}
 # Generate an interactive volcano plot
 interactive_plot <- analyze_pathway_volcano_interactive(
@@ -2538,6 +2590,7 @@ htmlwidgets::saveWidget(interactive_plot, "imgs/volcano/KEGG/TCR.html")
 
 
 #### Citrate cycle TCA
+
 
 ```{r include = FALSE}
 p <- analyze_pathway_volcano(
@@ -2590,6 +2643,7 @@ htmlwidgets::saveWidget(interactive_plot, "imgs/volcano/KEGG/TCA.html")
 
 #### Glycolysis
 
+
 ```{r include = FALSE}
 p <- analyze_pathway_volcano(
   pathway_name = "KEGG_GLYCOLYSIS_GLUCONEOGENESIS",
@@ -2639,7 +2693,10 @@ interactive_plot
 htmlwidgets::saveWidget(interactive_plot, "imgs/volcano/KEGG/Glycolysis.html")
 ```
 
+<hr />
+
 ## 4.5 REACTOME Pathways enrichment analysis
+
 
 ```{r}
 library(clusterProfiler)
@@ -2679,7 +2736,11 @@ GSE_Reactome <- gsePathway(ranked_genes_mapped,
                 nPermSimple = 100000)
 ```
 
+
+
 ### All REACTOME Pathways
+
+
 ```{r fig.width=10, fig.height=14}
 p <- custom_dotplot(gsea_obj = GSE_Reactome, 
                showCategory = 100, 
@@ -2724,7 +2785,9 @@ ggsave(
 )
 ```
 
+
 ### Top 20 KEGG Pathways
+
 
 ```{r fig.width=10, fig.height=8}
 p <- custom_dotplot(gsea_obj = GSE_Reactome, 
@@ -2751,6 +2814,7 @@ ggsave(
 ```
 
 
+<hr />
 
 ## 4.6 IMMUNESIGDB Pathways enrichment analysis
 
@@ -2791,7 +2855,10 @@ immunesig_results <- GSEA(ranked_genes,
                      seed = 123,
                      nPermSimple = 100000)
 ```
+
+
 ### Top 20 IMMUNESIGDB Pathways
+
 
 ```{r fig.width=10, fig.height=8}
 p <- custom_dotplot(gsea_obj = immunesig_results, 
