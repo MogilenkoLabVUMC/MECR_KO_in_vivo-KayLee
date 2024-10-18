@@ -8,6 +8,7 @@ output:
     toc: true
     theme: united
     number_sections: true # Number sections (optional)
+    self_contained: false
 ---
 
 
