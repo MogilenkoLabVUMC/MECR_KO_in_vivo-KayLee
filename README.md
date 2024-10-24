@@ -21,7 +21,7 @@ Gene set enrichment analysis21 was performed with `clusterProfiler`[22–24] 4.1
 
 
 
-
+# Methods
 
 1. Dobin A, Davis CA, Schlesinger F, et al. STAR: ultrafast universal RNA-seq aligner. Bioinformatics. 2013;29(1):15-21. doi:10.1093/bioinformatics/bts635
 2. Wingett SW, Andrews S. FastQ Screen: A tool for multi-genome mapping and quality control. Published online September 17, 2018. doi:10.12688/f1000research.15931.2
