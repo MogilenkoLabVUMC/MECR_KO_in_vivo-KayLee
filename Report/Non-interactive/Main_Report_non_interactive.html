@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Anton_Zhelonkin" />
+
+<meta name="date" content="2024-10-30" />
+
+<title>MECR-KO in vivo Report</title>
+
+<script src="Main_Report_non_interactive_files/header-attrs-2.28/header-attrs.js"></script>
+<script src="Main_Report_non_interactive_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="Main_Report_non_interactive_files/bootstrap-3.3.5/css/united.min.css" rel="stylesheet" />
+<script src="Main_Report_non_interactive_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="Main_Report_non_interactive_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="Main_Report_non_interactive_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="Main_Report_non_interactive_files/navigation-1.1/tabsets.js"></script>
+<link href="Main_Report_non_interactive_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="Main_Report_non_interactive_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="snippet.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">MECR-KO in vivo Report</h1>
+<h4 class="author">Anton_Zhelonkin</h4>
+<h4 class="date">2024-10-30</h4>
+
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#data-preparation" id="toc-data-preparation"><span
+class="toc-section-number">1</span> Data Preparation</a></li>
+<li><a href="#exploratory-analysis" id="toc-exploratory-analysis"><span
+class="toc-section-number">2</span> Exploratory analysis</a>
+<ul>
+<li><a href="#pca" id="toc-pca"><span
+class="toc-section-number">2.1</span> PCA</a></li>
+<li><a href="#scree-plot---proportion-of-variance-explained-by-pca"
+id="toc-scree-plot---proportion-of-variance-explained-by-pca"><span
+class="toc-section-number">2.2</span> Scree plot - Proportion of
+Variance explained by PCA</a></li>
+<li><a href="#samples-heatmap" id="toc-samples-heatmap"><span
+class="toc-section-number">2.3</span> Samples heatmap</a></li>
+</ul></li>
+<li><a href="#statistical-modelling"
+id="toc-statistical-modelling"><span class="toc-section-number">3</span>
+Statistical Modelling</a>
+<ul>
+<li><a href="#volcano-plot---for-trimmed-reads"
+id="toc-volcano-plot---for-trimmed-reads"><span
+class="toc-section-number">3.0.1</span> Volcano Plot - for trimmed
+reads</a></li>
+<li><a href="#volcano-plot---for-trimmed-de-deuplicated-reads"
+id="toc-volcano-plot---for-trimmed-de-deuplicated-reads"><span
+class="toc-section-number">3.0.2</span> Volcano Plot - for trimmed +
+de-deuplicated reads</a></li>
+</ul></li>
+<li><a href="#gene-set-enrichment-analysis"
+id="toc-gene-set-enrichment-analysis"><span
+class="toc-section-number">4</span> Gene Set Enrichment Analysis</a>
+<ul>
+<li><a href="#msigdb-hallmark-pathways-enrichment-analysis"
+id="toc-msigdb-hallmark-pathways-enrichment-analysis"><span
+class="toc-section-number">4.1</span> MSigDB Hallmark Pathways
+enrichment analysis</a>
+<ul>
+<li><a href="#all-hallmark-pathways"
+id="toc-all-hallmark-pathways"><span
+class="toc-section-number">4.1.1</span> All Hallmark pathways</a></li>
+<li><a href="#top-20-hallmark-pathways"
+id="toc-top-20-hallmark-pathways"><span
+class="toc-section-number">4.1.2</span> Top 20 Hallmark
+Pathways</a></li>
+<li><a href="#running-score-plots" id="toc-running-score-plots"><span
+class="toc-section-number">4.1.3</span> Running score plots</a></li>
+<li><a href="#pathway-specific-plots"
+id="toc-pathway-specific-plots"><span
+class="toc-section-number">4.1.4</span> Pathway-specific Plots</a></li>
+<li><a href="#deduplication-check" id="toc-deduplication-check"><span
+class="toc-section-number">4.1.5</span> Deduplication check</a></li>
+</ul></li>
+<li><a
+href="#msigdb-c5-gene-ontology-molecular-function-sets-enrichment-analysis"
+id="toc-msigdb-c5-gene-ontology-molecular-function-sets-enrichment-analysis"><span
+class="toc-section-number">4.2</span> MSigDB C5 Gene Ontology Molecular
+Function Sets enrichment analysis</a>
+<ul>
+<li><a href="#top-100-go-pathways" id="toc-top-100-go-pathways"><span
+class="toc-section-number">4.2.1</span> Top 100 GO Pathways</a></li>
+<li><a href="#top-20-gomf-pathways" id="toc-top-20-gomf-pathways"><span
+class="toc-section-number">4.2.2</span> Top 20 GO:MF Pathways</a></li>
+</ul></li>
+<li><a href="#running-score-plots-1"
+id="toc-running-score-plots-1"><span
+class="toc-section-number">4.3</span> Running score plots</a></li>
+<li><a href="#pathway-specific-plots-1"
+id="toc-pathway-specific-plots-1"><span
+class="toc-section-number">4.4</span> Pathway specific plots</a></li>
+<li><a
+href="#msigdb-c2-canonical-pathways-cp-gene-sets-enrichment-analysis"
+id="toc-msigdb-c2-canonical-pathways-cp-gene-sets-enrichment-analysis"><span
+class="toc-section-number">4.5</span> MSigDB C2 Canonical Pathways (CP)
+gene sets enrichment analysis</a>
+<ul>
+<li><a href="#all-c2cp-pathways" id="toc-all-c2cp-pathways"><span
+class="toc-section-number">4.5.1</span> All C2CP Pathways</a></li>
+<li><a href="#top-20-c2cp-pathways" id="toc-top-20-c2cp-pathways"><span
+class="toc-section-number">4.5.2</span> Top 20 C2CP Pathways</a></li>
+<li><a href="#running-score-plots-2"
+id="toc-running-score-plots-2"><span
+class="toc-section-number">4.5.3</span> Running score plots</a></li>
+</ul></li>
+<li><a href="#kegg-pathways-enrichment-analysis"
+id="toc-kegg-pathways-enrichment-analysis"><span
+class="toc-section-number">4.6</span> KEGG pathways enrichment
+analysis</a>
+<ul>
+<li><a href="#top-100-kegg-pathways"
+id="toc-top-100-kegg-pathways"><span
+class="toc-section-number">4.6.1</span> Top 100 KEGG Pathways</a></li>
+<li><a href="#top-20-kegg-pathways" id="toc-top-20-kegg-pathways"><span
+class="toc-section-number">4.6.2</span> Top 20 KEGG Pathways</a></li>
+<li><a href="#all-kegg-no-disease-pathways"
+id="toc-all-kegg-no-disease-pathways"><span
+class="toc-section-number">4.6.3</span> All KEGG (no disease)
+Pathways</a></li>
+<li><a href="#top-20-kegg-no-disese-pathways"
+id="toc-top-20-kegg-no-disese-pathways"><span
+class="toc-section-number">4.6.4</span> Top 20 KEGG (no disese)
+Pathways</a></li>
+<li><a href="#running-score-plots-3"
+id="toc-running-score-plots-3"><span
+class="toc-section-number">4.6.5</span> Running score plots</a></li>
+<li><a href="#pathway-specific-plots-2"
+id="toc-pathway-specific-plots-2"><span
+class="toc-section-number">4.6.6</span> Pathway-specific Plots</a></li>
+</ul></li>
+<li><a href="#reactome-pathways-enrichment-analysis"
+id="toc-reactome-pathways-enrichment-analysis"><span
+class="toc-section-number">4.7</span> REACTOME Pathways enrichment
+analysis</a>
+<ul>
+<li><a href="#all-reactome-pathways"
+id="toc-all-reactome-pathways"><span
+class="toc-section-number">4.7.1</span> All REACTOME Pathways</a></li>
+<li><a href="#top-20-kegg-pathways-1"
+id="toc-top-20-kegg-pathways-1"><span
+class="toc-section-number">4.7.2</span> Top 20 KEGG Pathways</a></li>
+</ul></li>
+<li><a href="#immunesigdb-pathways-enrichment-analysis"
+id="toc-immunesigdb-pathways-enrichment-analysis"><span
+class="toc-section-number">4.8</span> IMMUNESIGDB Pathways enrichment
+analysis</a>
+<ul>
+<li><a href="#top-20-immunesigdb-pathways"
+id="toc-top-20-immunesigdb-pathways"><span
+class="toc-section-number">4.8.1</span> Top 20 IMMUNESIGDB
+Pathways</a></li>
+</ul></li>
+<li><a href="#references" id="toc-references"><span
+class="toc-section-number">4.9</span> References</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div id="data-preparation" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Data Preparation</h1>
+<p>Raw counts data were filtered using <code>edgeR</code>s function
+<code>filterByExpr</code> and normalized using standard <code>TMM</code>
+(trimmed mean of M values) method, which accounts for sequencing depth,
+RNA composition, and gene length, and is the standard recommended method
+in <code>edgeR</code>s vignette. For the exploratory visualisations read
+counts per million were calculated and log+1 transformed.</p>
+<hr />
+</div>
+<div id="exploratory-analysis" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Exploratory
+analysis</h1>
+<div id="pca" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> PCA</h2>
+<p><strong>PCA Data Preparation for Plotting</strong>: : The first two
+principal components (PC1 and PC2) were extracted from the PCA results
+and combined with metadata (group/condition) and sample names.</p>
+<p><strong>Variance Explained by Principal Components</strong>: The
+proportion of variance explained by each principal component was
+calculated as a percentage. This provides context for interpreting the
+PCA plot by quantifying how much of the total variance is captured by
+PC1 and PC2.</p>
+<p><strong>PCA Plot:</strong> The PCA plot visualizes the first two
+principal components, with points representing individual samples.
+Points were colored and shaped according to the experimental condition
+(i.e., group).</p>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-5-1.png" width="2100" /></p>
+</div>
+<div id="scree-plot---proportion-of-variance-explained-by-pca"
+class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Scree plot -
+Proportion of Variance explained by PCA</h2>
+<p>The major % of variance is explained by the first component. The
+first PCA has obivously captured the nice delineation between the WT and
+KO samples.</p>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-6-1.png" width="2100" /></p>
+</div>
+<div id="samples-heatmap" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> Samples heatmap</h2>
+<p><em>Sample Correlation Matrix and Heatmap:</em> A sample correlation
+matrix was computed using Pearson correlation, quantifying the
+similarity in gene expression profiles between pairs of samples based on
+the logCPM values. This matrix reflects how closely samples relate to
+each other in terms of their overall expression patterns. A heatmap of
+the sample correlation matrix was generated using the pheatmap()
+function. The heatmap displayed correlation values between samples, with
+annotations for experimental group and temperature shown for each
+sample.</p>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-7-1.png" width="2100" /></p>
+<pre><code>## [1] &quot;No NAs introduced during values conversion&quot;</code></pre>
+<hr />
+</div>
+</div>
+<div id="statistical-modelling" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Statistical
+Modelling</h1>
+<p>The design matrix for initial modelling has been set up using the
+formula:</p>
+<blockquote>
+<p>Desing formula</p>
+<pre><code>DEGs ~ group</code></pre>
+</blockquote>
+<p>…which basically means. Variable on the left-hand side of a tilde (~)
+is called the “dependent variable”, while the variables on the
+right-hand side are called the “independent variables” and are joined by
+plus signs +. Variables joined by * sign, are interactions terms,
+i.e. we`re interested in how the intereaction between variables
+influences the dependant variable.</p>
+<p><em>Weighted limma-voom Transformation</em> To account for both
+sample quality and variability in read counts across samples, we applied
+the voomWithQualityWeights function from the limma package. This method
+incorporates sample-specific weights during normalization, ensuring that
+poor-quality samples have reduced influence on the differential
+expression analysis.</p>
+<div id="volcano-plot---for-trimmed-reads" class="section level3"
+number="3.0.1">
+<h3><span class="header-section-number">3.0.1</span> Volcano Plot - for
+trimmed reads</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-11-1.png" width="2100" /></p>
+</div>
+<div id="volcano-plot---for-trimmed-de-deuplicated-reads"
+class="section level3" number="3.0.2">
+<h3><span class="header-section-number">3.0.2</span> Volcano Plot - for
+trimmed + de-deuplicated reads</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-13-1.png" width="2100" /></p>
+<div
+id="t-statistic-rankins-and-correlation-for-trimmed-and-trimmeddeduplicated-samples"
+class="section level6" number="3.0.2.0.0.1">
+<h6><span class="header-section-number">3.0.2.0.0.1</span> t-statistic
+rankins and correlation for trimmed and trimmed+deduplicated
+samples</h6>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-14-1.png" width="2400" />
+Significant DE genes (p &lt; 0.05) identified in the trimmed and
+trimmed+deduplicated counts data.</p>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-15-1.png" width="2400" /></p>
+<p>Further down the analysis pipeline running GSEA on the
+trimmed+deduplicated data introduces a lot of ties to the data
+(&gt;50%), which is why for all the downstream analysis we`re sticking
+to trimmed, non-deduplcated data.</p>
+<hr />
+</div>
+</div>
+</div>
+<div id="gene-set-enrichment-analysis" class="section level1"
+number="4">
+<h1><span class="header-section-number">4</span> Gene Set Enrichment
+Analysis</h1>
+<p>Gene set enrichment analysis was performed using the
+<code>clusterProfiler</code> package. We tested pathway enrichment
+against <code>msigdbr</code> genesets database. * Hallmark Pathways *
+ImmuneSigDB subset of C7 - Gene sets representing chemical and genetic
+perturbations of the immune system generated by manual curation of
+published studies in human and mouse immunology * REACTOME * GO * MF:
+subset of GO - Gene sets derived from the GO Molecular Function
+ontology. The ranked gene list for the GSEA was ranked based on the
+moderated t-statistic.</p>
+<div id="msigdb-hallmark-pathways-enrichment-analysis"
+class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> MSigDB Hallmark
+Pathways enrichment analysis</h2>
+<div id="all-hallmark-pathways" class="section level3" number="4.1.1">
+<h3><span class="header-section-number">4.1.1</span> All Hallmark
+pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-21-1.png" width="3000" /></p>
+</div>
+<div id="top-20-hallmark-pathways" class="section level3"
+number="4.1.2">
+<h3><span class="header-section-number">4.1.2</span> Top 20 Hallmark
+Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-22-1.png" width="3000" /></p>
+</div>
+<div id="running-score-plots" class="section level3" number="4.1.3">
+<h3><span class="header-section-number">4.1.3</span> Running score
+plots</h3>
+<div id="top-5-pathways-running-score-plot" class="section level4"
+number="4.1.3.1">
+<h4><span class="header-section-number">4.1.3.1</span> Top 5 Pathways
+running score plot</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-23-1.png" width="2100" /></p>
+</div>
+<div id="top-24-running-score-plot" class="section level4"
+number="4.1.3.2">
+<h4><span class="header-section-number">4.1.3.2</span> Top 24 running
+score plot</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-26-1.png" width="4200" /></p>
+</div>
+</div>
+<div id="pathway-specific-plots" class="section level3" number="4.1.4">
+<h3><span class="header-section-number">4.1.4</span> Pathway-specific
+Plots</h3>
+<div id="myc-pathway" class="section level4" number="4.1.4.1">
+<h4><span class="header-section-number">4.1.4.1</span> Myc pathway</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-28-1.png" width="2100" /></p>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-29-1.png" width="1800" /></p>
+</div>
+<div id="mtorc1-pathway" class="section level4" number="4.1.4.2">
+<h4><span class="header-section-number">4.1.4.2</span> MTORC1
+pathway</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-30-1.png" width="2100" /></p>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-31-1.png" width="1800" /></p>
+</div>
+<div id="pi3k-akt-mtor-pathway" class="section level4" number="4.1.4.3">
+<h4><span class="header-section-number">4.1.4.3</span> PI3K-AKT-MTOR
+pathway</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-32-1.png" width="2100" /></p>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-33-1.png" width="1800" /></p>
+</div>
+</div>
+<div id="deduplication-check" class="section level3" number="4.1.5">
+<h3><span class="header-section-number">4.1.5</span> Deduplication
+check</h3>
+<blockquote>
+<pre><code>Warning: There are ties in the preranked stats (52.54% of the list).
+The order of those tied genes will be arbitrary, which may produce unexpected results.</code></pre>
+</blockquote>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-35-1.png" width="3000" /></p>
+<hr />
+</div>
+</div>
+<div
+id="msigdb-c5-gene-ontology-molecular-function-sets-enrichment-analysis"
+class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> MSigDB C5 Gene
+Ontology Molecular Function Sets enrichment analysis</h2>
+<div id="top-100-go-pathways" class="section level3" number="4.2.1">
+<h3><span class="header-section-number">4.2.1</span> Top 100 GO
+Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-37-1.png" width="3000" /></p>
+</div>
+<div id="top-20-gomf-pathways" class="section level3" number="4.2.2">
+<h3><span class="header-section-number">4.2.2</span> Top 20 <a
+href="GO:MF" class="uri">GO:MF</a> Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-38-1.png" width="3000" /></p>
+</div>
+</div>
+<div id="running-score-plots-1" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> Running score
+plots</h2>
+<div id="top-24-running-score-plot-1" class="section level4"
+number="4.3.0.1">
+<h4><span class="header-section-number">4.3.0.1</span> Top 24 running
+score plot</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-40-1.png" width="4200" /></p>
+</div>
+</div>
+<div id="pathway-specific-plots-1" class="section level2" number="4.4">
+<h2><span class="header-section-number">4.4</span> Pathway specific
+plots</h2>
+<div id="electron-transfer-activity" class="section level4"
+number="4.4.0.1">
+<h4><span class="header-section-number">4.4.0.1</span> Electron Transfer
+Activity</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-41-1.png" width="2100" /></p>
+</div>
+<div id="wnt-receptor-activity" class="section level4" number="4.4.0.2">
+<h4><span class="header-section-number">4.4.0.2</span> WNT Receptor
+Activity</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-42-1.png" width="2100" /></p>
+<hr />
+</div>
+</div>
+<div id="msigdb-c2-canonical-pathways-cp-gene-sets-enrichment-analysis"
+class="section level2" number="4.5">
+<h2><span class="header-section-number">4.5</span> MSigDB C2 Canonical
+Pathways (CP) gene sets enrichment analysis</h2>
+<div id="all-c2cp-pathways" class="section level3" number="4.5.1">
+<h3><span class="header-section-number">4.5.1</span> All C2CP
+Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-44-1.png" width="3000" /></p>
+</div>
+<div id="top-20-c2cp-pathways" class="section level3" number="4.5.2">
+<h3><span class="header-section-number">4.5.2</span> Top 20 C2CP
+Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-45-1.png" width="3000" /></p>
+</div>
+<div id="running-score-plots-2" class="section level3" number="4.5.3">
+<h3><span class="header-section-number">4.5.3</span> Running score
+plots</h3>
+<div id="top-5-pathways-running-score-plot-1" class="section level4"
+number="4.5.3.1">
+<h4><span class="header-section-number">4.5.3.1</span> Top 5 Pathways
+running score plot</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-47-1.png" width="1800" /></p>
+</div>
+<div id="top-24-running-score-plot-2" class="section level4"
+number="4.5.3.2">
+<h4><span class="header-section-number">4.5.3.2</span> Top 24 running
+score plot</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-49-1.png" width="4200" /></p>
+<hr />
+</div>
+</div>
+</div>
+<div id="kegg-pathways-enrichment-analysis" class="section level2"
+number="4.6">
+<h2><span class="header-section-number">4.6</span> KEGG pathways
+enrichment analysis</h2>
+<div id="top-100-kegg-pathways" class="section level3" number="4.6.1">
+<h3><span class="header-section-number">4.6.1</span> Top 100 KEGG
+Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-51-1.png" width="3000" /></p>
+</div>
+<div id="top-20-kegg-pathways" class="section level3" number="4.6.2">
+<h3><span class="header-section-number">4.6.2</span> Top 20 KEGG
+Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-52-1.png" width="3000" /></p>
+<p>So far as we are not interested in particular disease related
+pathways or cancer types, while KEGG is abandunt in those, I have tried
+to manually filter pathways, that contain keywords, such as
+<code>cancer</code>, <code>disease</code>,
+<code>leukemia</code>,<code>carcinoma</code>, <code>depression</code>,
+<code>lupus</code>, <code>infection</code>, and other *<code>oma</code>s
+(like melanoma, carcinoma etc.)</p>
+</div>
+<div id="all-kegg-no-disease-pathways" class="section level3"
+number="4.6.3">
+<h3><span class="header-section-number">4.6.3</span> All KEGG (no
+disease) Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-55-1.png" width="3000" /></p>
+</div>
+<div id="top-20-kegg-no-disese-pathways" class="section level3"
+number="4.6.4">
+<h3><span class="header-section-number">4.6.4</span> Top 20 KEGG (no
+disese) Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-56-1.png" width="3000" /></p>
+</div>
+<div id="running-score-plots-3" class="section level3" number="4.6.5">
+<h3><span class="header-section-number">4.6.5</span> Running score
+plots</h3>
+<div id="top-5-pathways-running-score-plot-2" class="section level4"
+number="4.6.5.1">
+<h4><span class="header-section-number">4.6.5.1</span> Top 5 Pathways
+running score plot</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-57-1.png" width="2100" /></p>
+</div>
+<div id="top-24-running-score-plot-3" class="section level4"
+number="4.6.5.2">
+<h4><span class="header-section-number">4.6.5.2</span> Top 24 running
+score plot</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-59-1.png" width="4200" /></p>
+</div>
+</div>
+<div id="pathway-specific-plots-2" class="section level3"
+number="4.6.6">
+<h3><span class="header-section-number">4.6.6</span> Pathway-specific
+Plots</h3>
+<div id="antigen-processing-presentation" class="section level4"
+number="4.6.6.1">
+<h4><span class="header-section-number">4.6.6.1</span> Antigen
+Processing &amp; Presentation</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-60-1.png" width="2100" /></p>
+</div>
+<div id="ag-processing-running-score-plot" class="section level4"
+number="4.6.6.2">
+<h4><span class="header-section-number">4.6.6.2</span> AG processing
+running score plot</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-61-1.png" width="1800" /></p>
+</div>
+<div id="tcr-signaling" class="section level4" number="4.6.6.3">
+<h4><span class="header-section-number">4.6.6.3</span> TCR
+signaling</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-62-1.png" width="2100" /></p>
+</div>
+<div id="citrate-cycle-tca" class="section level4" number="4.6.6.4">
+<h4><span class="header-section-number">4.6.6.4</span> Citrate cycle
+TCA</h4>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-63-1.png" width="2100" /></p>
+</div>
+<div id="glycolysis" class="section level4" number="4.6.6.5">
+<h4><span class="header-section-number">4.6.6.5</span> Glycolysis</h4>
+<hr />
+</div>
+</div>
+</div>
+<div id="reactome-pathways-enrichment-analysis" class="section level2"
+number="4.7">
+<h2><span class="header-section-number">4.7</span> REACTOME Pathways
+enrichment analysis</h2>
+<div id="all-reactome-pathways" class="section level3" number="4.7.1">
+<h3><span class="header-section-number">4.7.1</span> All REACTOME
+Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-66-1.png" width="3000" /></p>
+</div>
+<div id="top-20-kegg-pathways-1" class="section level3" number="4.7.2">
+<h3><span class="header-section-number">4.7.2</span> Top 20 KEGG
+Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-67-1.png" width="3000" /></p>
+<hr />
+</div>
+</div>
+<div id="immunesigdb-pathways-enrichment-analysis"
+class="section level2" number="4.8">
+<h2><span class="header-section-number">4.8</span> IMMUNESIGDB Pathways
+enrichment analysis</h2>
+<p>Here is the list of the enriched Hallmark Pathways.</p>
+<p>ImmuneSigDB subset of C7</p>
+<div id="top-20-immunesigdb-pathways" class="section level3"
+number="4.8.1">
+<h3><span class="header-section-number">4.8.1</span> Top 20 IMMUNESIGDB
+Pathways</h3>
+<p><img src="Main_Report_non_interactive_files/figure-html/unnamed-chunk-69-1.png" width="3000" /></p>
+<ol start="3" style="list-style-type: decimal">
+<li>Enriched plot</li>
+</ol>
+<ul>
+<li>Hallmark, top 20.</li>
+<li>Manually removed rededundant pathways:
+<ul>
+<li>HALLMARK MYC TARGETS V2</li>
+<li>HALLMARK ADIPOGENESIS</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="references" class="section level2" number="4.9">
+<h2><span class="header-section-number">4.9</span> References</h2>
+<pre><code>## Guangchuang Yu, Qing-Yu He. ReactomePA: an R/Bioconductor package for reactome pathway analysis and visualization. Molecular BioSystems 2016, 12(2):477-479
+## 
+## S Xu, E Hu, Y Cai, Z Xie, X Luo, L Zhan, W Tang, Q Wang, B Liu, R Wang, W Xie, T Wu, L Xie, G Yu. Using clusterProfiler to characterize multiomics data. Nature Protocols. 2024, doi:10.1038/s41596-024-01020-z
+## 
+## T Wu, E Hu, S Xu, M Chen, P Guo, Z Dai, T Feng, L Zhou, W Tang, L Zhan, X Fu, S Liu, X Bo, and G Yu. clusterProfiler 4.0: A universal enrichment tool for interpreting omics data. The Innovation. 2021, 2(3):100141
+## 
+## Guangchuang Yu, Li-Gen Wang, Yanyan Han and Qing-Yu He. clusterProfiler: an R package for comparing biological themes among gene clusters. OMICS: A Journal of Integrative Biology 2012, 16(5):284-287
+## 
+## Lawrence M, Huber W, Pag\`es H, Aboyoun P, Carlson M, et al. (2013) Software for Computing and Annotating Genomic Ranges. PLoS Comput Biol 9(8): e1003118. doi:10.1371/journal.pcbi.1003118
+## 
+## Orchestrating high-throughput genomic analysis with Bioconductor. W. Huber, V.J. Carey, R. Gentleman, ..., M. Morgan Nature Methods, 2015:12, 115.
+## 
+## Orchestrating high-throughput genomic analysis with Bioconductor. W. Huber, V.J. Carey, R. Gentleman, ..., M. Morgan Nature Methods, 2015:12, 115.
+## 
+## C. Sievert. Interactive Web-Based Data Visualization with R, plotly, and shiny. Chapman and Hall/CRC Florida, 2020.
+## 
+## Garrett Grolemund, Hadley Wickham (2011). Dates and Times Made Easy with lubridate. Journal of Statistical Software, 40(3), 1-25. URL https://www.jstatsoft.org/v40/i03/.
+## 
+## Chen Y, Chen L, Lun ATL, Baldoni PL, Smyth GK (2024). edgeR 4.0: powerful differential analysis of sequencing data with expanded functionality and improved support for small counts and larger datasets. bioRxiv doi: 10.1101/2024.01.21.576131
+## 
+## Chen Y, Lun ATL, Smyth GK (2016). From reads to genes to pathways: differential expression analysis of RNA-Seq experiments using Rsubread and the edgeR quasi-likelihood pipeline. F1000Research 5, 1438
+## 
+## McCarthy DJ, Chen Y and Smyth GK (2012). Differential expression analysis of multifactor RNA-Seq experiments with respect to biological variation. Nucleic Acids Research 40(10), 4288-4297
+## 
+## Robinson MD, McCarthy DJ and Smyth GK (2010). edgeR: a Bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics 26(1), 139-140
+## 
+## Ritchie, M.E., Phipson, B., Wu, D., Hu, Y., Law, C.W., Shi, W., and Smyth, G.K. (2015). limma powers differential expression analyses for RNA-sequencing and microarray studies. Nucleic Acids Research 43(7), e47.
+## 
+## H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016.</code></pre>
+<pre><code>## R version 4.4.1 (2024-06-14)
+## Platform: aarch64-apple-darwin20
+## Running under: macOS 15.0.1
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib 
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## time zone: America/Chicago
+## tzcode source: internal
+## 
+## attached base packages:
+## [1] stats4    grid      stats     graphics  grDevices utils     datasets 
+## [8] methods   base     
+## 
+## other attached packages:
+##  [1] gridExtra_2.3          ReactomePA_1.48.0      cowplot_1.1.3         
+##  [4] enrichplot_1.24.4      clusterProfiler_4.12.6 msigdbr_7.5.1         
+##  [7] org.Mm.eg.db_3.19.1    AnnotationDbi_1.66.0   IRanges_2.38.1        
+## [10] S4Vectors_0.42.1       Biobase_2.64.0         BiocGenerics_0.50.0   
+## [13] scales_1.3.0           VennDiagram_1.7.3      futile.logger_1.4.3   
+## [16] plotly_4.10.4          pheatmap_1.0.12        ggalt_0.4.0           
+## [19] lubridate_1.9.3        forcats_1.0.0          stringr_1.5.1         
+## [22] dplyr_1.1.4            purrr_1.0.2            readr_2.1.5           
+## [25] tidyr_1.3.1            tibble_3.2.1           tidyverse_2.0.0       
+## [28] EnhancedVolcano_1.22.0 ggrepel_0.9.6          edgeR_4.2.1           
+## [31] limma_3.60.6           ggplot2_3.5.1         
+## 
+## loaded via a namespace (and not attached):
+##   [1] splines_4.4.1           ggplotify_0.1.2         R.oo_1.26.0            
+##   [4] polyclip_1.10-7         graph_1.82.0            lifecycle_1.0.4        
+##   [7] httr2_1.0.5             lattice_0.22-6          MASS_7.3-61            
+##  [10] magrittr_2.0.3          sass_0.4.9              rmarkdown_2.28         
+##  [13] jquerylib_0.1.4         yaml_2.3.10             DBI_1.2.3              
+##  [16] RColorBrewer_1.1-3      maps_3.4.2              zlibbioc_1.50.0        
+##  [19] R.utils_2.12.3          ggraph_2.2.1            yulab.utils_0.1.7      
+##  [22] tweenr_2.0.3            rappdirs_0.3.3          GenomeInfoDbData_1.2.12
+##  [25] tidytree_0.4.6          reactome.db_1.88.0      svglite_2.1.3          
+##  [28] codetools_0.2-20        DOSE_3.30.5             ggforce_0.4.2          
+##  [31] tidyselect_1.2.1        aplot_0.2.3             UCSC.utils_1.0.0       
+##  [34] farver_2.1.2            viridis_0.6.5           ash_1.0-15             
+##  [37] jsonlite_1.8.9          tidygraph_1.3.1         systemfonts_1.1.0      
+##  [40] tools_4.4.1             treeio_1.28.0           ragg_1.3.3             
+##  [43] Rcpp_1.0.13             glue_1.8.0              Rttf2pt1_1.3.12        
+##  [46] xfun_0.48               qvalue_2.36.0           GenomeInfoDb_1.40.1    
+##  [49] withr_3.0.1             formatR_1.14            fastmap_1.2.0          
+##  [52] fansi_1.0.6             digest_0.6.37           timechange_0.3.0       
+##  [55] R6_2.5.1                gridGraphics_0.5-1      textshaping_0.4.0      
+##  [58] colorspace_2.1-1        GO.db_3.19.1            RSQLite_2.3.7          
+##  [61] R.methodsS3_1.8.2       utf8_1.2.4              generics_0.1.3         
+##  [64] data.table_1.16.0       graphlayouts_1.2.0      httr_1.4.7             
+##  [67] htmlwidgets_1.6.4       scatterpie_0.2.4        graphite_1.50.0        
+##  [70] pkgconfig_2.0.3         gtable_0.3.5            blob_1.2.4             
+##  [73] XVector_0.44.0          shadowtext_0.1.4        htmltools_0.5.8.1      
+##  [76] fgsea_1.30.0            png_0.1-8               ggfun_0.1.6            
+##  [79] knitr_1.48              lambda.r_1.2.4          rstudioapi_0.16.0      
+##  [82] tzdb_0.4.0              reshape2_1.4.4          nlme_3.1-166           
+##  [85] cachem_1.1.0            KernSmooth_2.23-24      parallel_4.4.1         
+##  [88] extrafont_0.19          pillar_1.9.0            vctrs_0.6.5            
+##  [91] extrafontdb_1.0         evaluate_1.0.0          cli_3.6.3              
+##  [94] locfit_1.5-9.10         compiler_4.4.1          futile.options_1.0.1   
+##  [97] rlang_1.1.4             crayon_1.5.3            labeling_0.4.3         
+## [100] plyr_1.8.9              fs_1.6.4                stringi_1.8.4          
+## [103] viridisLite_0.4.2       BiocParallel_1.38.0     babelgene_22.9         
+## [106] munsell_0.5.1           Biostrings_2.72.1       lazyeval_0.2.2         
+## [109] proj4_1.0-14            GOSemSim_2.30.2         Matrix_1.7-0           
+## [112] hms_1.1.3               patchwork_1.3.0         bit64_4.5.2            
+## [115] KEGGREST_1.44.1         statmod_1.5.0           highr_0.11             
+## [118] igraph_2.0.3            memoise_2.0.1           bslib_0.8.0            
+## [121] ggtree_3.12.0           fastmatch_1.1-4         bit_4.5.0              
+## [124] ape_5.8                 gson_0.1.0</code></pre>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
