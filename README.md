@@ -4,7 +4,7 @@ This is the repo for R bulk RNAseq processing of the data generated from experim
 
 The details of the raw **`fastq.gz`** files pre-precessing are available [here](https://github.com/MogilenkoLabVUMC/RNAseq_pipelineDock_MECR_KayLee).
 
-The **`Report.Rmd`** contains all the code for the analysis.
+The **`Report`** folder contains all non-interactive and interactive html reports. The interactive reports contains **`plotly`** interactive volcano plots. To read the report you need to download the folder containing the `html` report and the `*_files` folder on your computer, and open the report in your browser of choice. The html report itselft and its files folder need to be in one folder, for the html report to open correctly on your end.
 
 # Methods
 
